@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 import configparser
+from webdriver_manager.chrome import ChromeDriverManager
 
 # Load configuration
 config = configparser.ConfigParser()
@@ -20,7 +21,7 @@ def driver():
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
 
-    service = Service(r'C:\Users\saravanakumar.a\Downloads\cd\chromedriver.exe')
+    service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.implicitly_wait(10)
 
