@@ -1,0 +1,28 @@
+trigger:
+- main  # or the branch you want to trigger the pipeline
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'  # Specify the Python version you need
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r SSO/requirements.txt
+  displayName: 'Install dependencies'
+
+- task: DownloadSecureFile@1
+  inputs:
+    secureFile: 'secret.key'
+
+- script: |
+    cp $(Agent.TempDirectory)/secret.key SSO/secret.key
+  displayName: 'Copy secret.key'
+
+- script: |
+    python SSO/testsuite.py
+  displayName: 'Run testsuite.py'
