@@ -27,6 +27,8 @@ steps:
     export PATH=$PATH:/usr/local/bin
     export CHROME_BIN=/usr/bin/google-chrome
     export CHROME_DRIVER=/usr/local/bin/chromedriver
+    echo "Chrome version: $($CHROME_BIN --version)"
+    echo "ChromeDriver version: $($CHROME_DRIVER --version)"
     cd SSO
     pytest test_login.py
     pytest test_loginnegative.py
