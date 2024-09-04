@@ -25,7 +25,7 @@ steps:
     echo "Chrome version: $(chrome --version)"
     echo "ChromeDriver version: $(chromedriver --version)"
     cd SSO
-    pytest test_login.py --doctest-modules --junitxml=junit/test-results.xml
+    pytest testsuite.py --doctest-modules --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
 - task: PublishTestResults@2
