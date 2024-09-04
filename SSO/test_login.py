@@ -46,7 +46,6 @@ def click_element(wait, locator):
         except StaleElementReferenceException:
             print("StaleElementReferenceException encountered. Retrying...")
 
-@pytest.mark.order(1)
 def test_login(driver):
     wait = WebDriverWait(driver, 10)
     driver.get("https://login.microsoftonline.com/")

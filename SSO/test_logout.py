@@ -47,7 +47,6 @@ def click_element(driver, wait, locator):
             # Re-locate the element
             element = driver.find_element(*locator)
 
-@pytest.mark.order(1)
 def test_login(driver):
     wait = WebDriverWait(driver, 10)
     driver.get("https://login.microsoftonline.com/")
