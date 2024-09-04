@@ -18,10 +18,9 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    echo "[pytest]" > pytest.ini
-    echo "markers =" >> pytest.ini
-    echo "    order: mark test order" >> pytest.ini
-  displayName: 'Register custom pytest marks'
+    sudo apt-get update
+    sudo apt-get install -y chromium-browser
+  displayName: 'Install Chrome'
 
 - script: |
     pytest test_login.py test_loginnegative.py test_logout.py
