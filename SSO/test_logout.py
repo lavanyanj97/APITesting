@@ -48,7 +48,7 @@ def click_element(driver, wait, locator):
             # Re-locate the element
             element = driver.find_element(*locator)
 
-def test_login(driver):
+def test_logout(driver):
     wait = WebDriverWait(driver, 10)
     driver.get("https://login.microsoftonline.com/")
 
