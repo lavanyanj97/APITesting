@@ -7,7 +7,7 @@ pool:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.x'
+    versionSpec: '3.12.5'
     addToPath: true
 
 - script: |
@@ -15,9 +15,24 @@ steps:
     pip install -r SSO/requirements.txt
   displayName: 'Install dependencies'
 
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y wget unzip
+    wget -N https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+    unzip chromedriver_linux64.zip -d /usr/local/bin/
+    sudo apt-get install -y google-chrome-stable
+  displayName: 'Install Chrome and ChromeDriver'
+
 - script: |
     cd SSO
     pytest test_login.py
     pytest test_loginnegative.py
     pytest test_logout.py
   displayName: 'Run test suite'
+
