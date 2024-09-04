@@ -16,9 +16,17 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
+    choco install googlechrome -y
+    choco install chromedriver -y
+    setx PATH "%PATH%;C:\Program Files\Google\Chrome\Application;C:\tools\chromedriver"
+  displayName: 'Install Chrome and ChromeDriver'
+
+- script: |
+    echo "Chrome version: $(chrome --version)"
+    echo "ChromeDriver version: $(chromedriver --version)"
     cd SSO
-    pytest test_login.py
-    pytest test_loginnegative.py
+    pytest test_login.py --doctest-modules --junitxml=junit/test-results.xml
+    pytest test_loginnegative.py --doctest-modules --junitxml=junit/test-results.xml
     pytest test_logout.py --doctest-modules --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
