@@ -16,7 +16,8 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    pytest SSO/test_login.py
-    pytest SSO/test_loginnegative.py
-    pytest SSO/test_logout.py
+    cd SSO
+    pytest test_login.py
+    pytest test_loginnegative.py
+    pytest test_logout.py
   displayName: 'Run test suite'
