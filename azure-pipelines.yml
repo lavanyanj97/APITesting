@@ -1,55 +1,38 @@
+
 trigger:
 - main
 
-stages:
-- stage: BuildAndTest
-  jobs:
-  - job: Job1
-    displayName: 'Install dependencies and run tests'
-    pool:
-      vmImage: 'windows-latest'
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.x'
-        addToPath: true
+pool:
+  vmImage: 'windows-latest'
 
-    - script: |
-        python -m pip install --upgrade pip
-        pip install -r SSO/requirements.txt
-        pip install webdriver-manager
-      displayName: 'Install dependencies'
+steps:
+# Use a specific version of Python
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+  displayName: 'Set up Python 3.x'
 
-    - script: |
-        python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
-      displayName: 'Install ChromeDriver using WebDriver Manager'
+# Install Python dependencies
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r SSO/requirements.txt
+  displayName: 'Install dependencies'
 
-    - script: |
-        cd SSO
-        pytest --junitxml=junit/test-results.xml
-      displayName: 'Run test suite'
 
-    - task: PublishTestResults@2
-      inputs:
-        testResultsFiles: '**/junit/test-results.xml'
-        testRunTitle: 'Test Results'
+# Run the test suite and save results in JUnit format
+- script: |
+    mkdir -p SSO/junit
+    cd SSO
+    pytest --junitxml=junit/test-results.xml
+  displayName: 'Run test suite'
 
-  - job: Job2
-    displayName: 'Copy and Publish Artifacts'
-    pool:
-      vmImage: 'windows-latest'
-    dependsOn: Job1
-    steps:
-    - task: CopyFiles@2
-      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-      inputs:
-        SourceFolder: '$(system.defaultworkingdirectory)'
-        Contents: '**/*.jar'
-        TargetFolder: '$(build.artifactstagingdirectory)'
-      condition: succeededOrFailed()
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: drop'
-      inputs:
-        PathtoPublish: '$(build.artifactstagingdirectory)'
-      condition: succeededOrFailed()
+# Publish test results to Azure DevOps
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'SSO/junit/test-results.xml'
+    mergeTestResults: true
+    failTaskOnFailedTests: true
+  displayName: 'Publish Test Results'
+  condition: always()  # Ensure the task always runs
