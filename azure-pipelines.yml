@@ -13,7 +13,7 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     pip install -r SSO/requirements.txt
-    pip install webdriver-manager
+    pip install pytest pytest-cov
   displayName: 'Install dependencies'
 
 - script: |
@@ -22,10 +22,19 @@ steps:
 
 - script: |
     cd SSO
-    pytest --junitxml=junit/test-results.xml
-  displayName: 'Run test suite'
+    pytest --cov=. --cov-report=xml --junitxml=junit/test-results.xml
+  displayName: 'Run test suite and generate coverage report'
 
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'SSO/junit/test-results.xml'
+    failTaskOnFailedTests: true
+    testRunTitle: 'Python Selenium Tests'
+  displayName: 'Publish Test Results'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/SSO/coverage.xml'
+  displayName: 'Publish Code Coverage Results'
