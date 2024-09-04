@@ -7,7 +7,7 @@ pool:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.12.5'
+    versionSpec: '3.x'
     addToPath: true
 
 - script: |
@@ -16,5 +16,7 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    python SSO/testsuite.py
+    pytest SSO/test_login.py
+    pytest SSO/test_loginnegative.py
+    pytest SSO/test_logout.py
   displayName: 'Run test suite'
