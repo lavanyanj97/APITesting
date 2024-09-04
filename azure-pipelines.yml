@@ -7,7 +7,7 @@ pool:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.x'  # Specify the Python version you need
+    versionSpec: '3.10.14'  # Specify the Python version you need
     addToPath: true
 
 - script: |
