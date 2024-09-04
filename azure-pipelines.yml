@@ -1,4 +1,3 @@
-
 trigger:
 - main
 
@@ -6,28 +5,21 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-# Use a specific version of Python
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.x'
     addToPath: true
-  displayName: 'Set up Python 3.x'
 
-# Install Python dependencies
 - script: |
     python -m pip install --upgrade pip
     pip install -r SSO/requirements.txt
   displayName: 'Install dependencies'
 
-
-# Run the test suite and save results in JUnit format
 - script: |
-    mkdir -p SSO/junit
     cd SSO
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
-# Publish test results to Azure DevOps
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
@@ -35,4 +27,3 @@ steps:
     mergeTestResults: true
     failTaskOnFailedTests: true
   displayName: 'Publish Test Results'
-  condition: always()  # Ensure the task always runs
