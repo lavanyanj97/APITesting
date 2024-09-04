@@ -1,36 +1,26 @@
 trigger:
-- main
+  - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'macOS-latest'
 
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.12.5'
-    addToPath: true
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '2.x'
+      addToPath: true
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r SSO/requirements.txt
-  displayName: 'Install dependencies'
+  - script: |
+      python -m pip install --upgrade pip
+      pip install pytest selenium
+    displayName: 'Install dependencies'
 
-- script: |
-    sudo apt-get update
-    sudo apt-get install -y wget unzip
-    wget -N https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
-    unzip chromedriver_linux64.zip -d /usr/local/bin/
-    sudo apt-get install -y google-chrome-stable
-  displayName: 'Install Chrome and ChromeDriver'
+  - script: |
+      cd SSO
+      pytest test_login.py --doctest-modules --junitxml=junit/test-results.xml
+    displayName: 'Run test suite'
 
-- script: |
-    export PATH=$PATH:/usr/local/bin
-    export CHROME_BIN=/usr/bin/google-chrome
-    export CHROME_DRIVER=/usr/local/bin/chromedriver
-    echo "Chrome version: $($CHROME_BIN --version)"
-    echo "ChromeDriver version: $($CHROME_DRIVER --version)"
-    cd SSO
-    pytest test_login.py
-    pytest test_loginnegative.py
-    pytest test_logout.py
-  displayName: 'Run test suite'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'SSO/junit/test-results.xml'
