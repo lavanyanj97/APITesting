@@ -1,40 +1,55 @@
 trigger:
 - main
 
-pool:
-  vmImage: 'windows-latest'
+stages:
+- stage: BuildAndTest
+  jobs:
+  - job: Job1
+    displayName: 'Install dependencies and run tests'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.x'
-    addToPath: true
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r SSO/requirements.txt
+        pip install webdriver-manager
+      displayName: 'Install dependencies'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r SSO/requirements.txt
-    pip install webdriver-manager
-  displayName: 'Install dependencies'
+    - script: |
+        python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
+      displayName: 'Install ChromeDriver using WebDriver Manager'
 
-- script: |
-    python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
-  displayName: 'Install ChromeDriver using WebDriver Manager'
+    - script: |
+        cd SSO
+        pytest --junitxml=junit/test-results.xml
+      displayName: 'Run test suite'
 
-- script: |
-    cd SSO
-    pytest --junitxml=junit/test-results.xml
-  displayName: 'Run test suite'
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/junit/test-results.xml'
+        testRunTitle: 'Test Results'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**/*'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-  condition: succeededOrFailed()
+  - job: Job2
+    displayName: 'Copy and Publish Artifacts'
+    pool:
+      vmImage: 'windows-latest'
+    dependsOn: Job1
+    steps:
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+      inputs:
+        SourceFolder: '$(system.defaultworkingdirectory)'
+        Contents: '**/*.jar'
+        TargetFolder: '$(build.artifactstagingdirectory)'
+      condition: succeededOrFailed()
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-  condition: succeededOrFailed()
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: drop'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
+      condition: succeededOrFailed()
