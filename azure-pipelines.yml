@@ -13,17 +13,27 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     pip install -r SSO/requirements.txt
+    pip install webdriver-manager
   displayName: 'Install dependencies'
 
 - script: |
     choco install googlechrome -y
     choco install chromedriver -y
     setx PATH "%PATH%;C:\Program Files\Google\Chrome\Application;C:\tools\chromedriver"
+    refreshenv
   displayName: 'Install Chrome and ChromeDriver'
 
 - script: |
     echo "Chrome version: $(chrome --version)"
     echo "ChromeDriver version: $(chromedriver --version)"
+    echo %PATH%
+  displayName: 'Check Chrome and ChromeDriver versions'
+
+- script: |
+    python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
+  displayName: 'Install ChromeDriver using WebDriver Manager'
+
+- script: |
     cd SSO
     pytest test_login.py --doctest-modules --junitxml=junit/test-results.xml
     pytest test_loginnegative.py --doctest-modules --junitxml=junit/test-results.xml
