@@ -1,0 +1,28 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12.5'
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r SSO/requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    cd SSO
+    pytest test_login.py
+    pytest test_loginnegative.py
+    pytest test_logout.py --doctest-modules --junitxml=junit/test-results.xml
+  displayName: 'Run test suite'
+
+- task: PublishTestResults@2
+inputs:
+  testResultsFormat: 'JUnit'
+  testResultsFiles: '**/*.xml'
