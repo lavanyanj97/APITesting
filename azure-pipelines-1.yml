@@ -23,6 +23,6 @@ steps:
   displayName: 'Run test suite'
 
 - task: PublishTestResults@2
-inputs:
-  testResultsFormat: 'JUnit'
-  testResultsFiles: '**/*.xml'
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/*.xml'
