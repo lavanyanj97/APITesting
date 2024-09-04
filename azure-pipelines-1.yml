@@ -26,6 +26,7 @@ steps:
 
 # Run the test suite and save results in JUnit format
 - script: |
+    mkdir -p SSO/junit
     cd SSO
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
@@ -38,6 +39,7 @@ steps:
     mergeTestResults: true
     failTaskOnFailedTests: true
   displayName: 'Publish Test Results'
+  condition: always()  # Ensure the task always runs
 
 # Publish artifacts if needed (e.g., test reports or build artifacts)
 - task: PublishPipelineArtifact@1
@@ -45,9 +47,12 @@ steps:
     targetPath: 'SSO/junit'
     artifactName: 'test-results'
   displayName: 'Publish Test Results Artifact'
+  condition: always()  # Ensure the task always runs
 
-# Add a step to display queue time and other detailed job info if needed
+# Add debugging information to verify paths and results
 - script: |
-    echo "Queue time and job info not directly available via script."
-    echo "Please refer to Azure DevOps UI for detailed job summary."
-  displayName: 'Display Queue Time and Job Info'
+    echo "Checking directory contents:"
+    ls -R SSO
+    echo "Test results XML file:"
+    cat SSO/junit/test-results.xml
+  displayName: 'Debug Output'
