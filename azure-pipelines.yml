@@ -13,7 +13,7 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     pip install -r SSO/requirements.txt
-    pip install pytest pytest-cov
+    pip install webdriver-manager
   displayName: 'Install dependencies'
 
 - script: |
@@ -25,20 +25,35 @@ steps:
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
-- script: |
-    python calculate_pass_percentage.py junit/test-results.xml
-  displayName: 'Calculate pass percentage'
-
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'SSO/junit/test-results.xml'
     failTaskOnFailedTests: true
-    testRunTitle: 'Python Selenium Tests'
-  displayName: 'Publish Test Results'
+    testRunTitle: 'SSO Test Results'
+    publishRunAttachments: true  # Publishes the test results as artifacts
 
-- task: PublishPipelineArtifact@1
+- task: PowerShell@2
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/SSO'
-    artifactName: 'SSO_Artifact'
-  displayName: 'Publish Artifact'
+    targetType: 'inline'
+    script: |
+      $testResults = [xml](Get-Content "SSO/junit/test-results.xml")
+      $total = $testResults.testsuites.testsuite.tests
+      $failures = $testResults.testsuites.testsuite.failures
+      $passed = $total - $failures
+      $percentage = [math]::Round(($passed / $total) * 100, 2)
+      Write-Host "##vso[task.setvariable variable=passPercentage;]$percentage"
+      Write-Host "Test Passed Percentage: $percentage%"
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'SSO/junit'
+    ArtifactName: 'TestResults'
+    publishLocation: 'Container'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Test Passed Percentage: $(passPercentage)%"
+  condition: succeededOrFailed()
