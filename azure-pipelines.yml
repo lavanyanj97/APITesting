@@ -1,5 +1,5 @@
 trigger:
-- main  # or the branch you want to trigger the pipeline
+- main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -7,22 +7,14 @@ pool:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.10.14'
+    versionSpec: '3.12.5'
     addToPath: true
 
 - script: |
     python -m pip install --upgrade pip
-    pip install pytest
     pip install -r SSO/requirements.txt
-    pip install webdriver_manager  # Ensure webdriver_manager is installed
   displayName: 'Install dependencies'
 
 - script: |
-    sudo apt-get update
-    sudo apt-get install -y chromium-browser
-  displayName: 'Install Chrome'
-
-- script: |
-    pytest test_login.py test_loginnegative.py test_logout.py
-  workingDirectory: SSO
-  displayName: 'Run tests with pytest'
+    python SSO/testsuite.py
+  displayName: 'Run test suite'
