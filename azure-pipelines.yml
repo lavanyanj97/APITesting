@@ -25,35 +25,18 @@ steps:
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
-- task: PublishTestResults@2
+steps:
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: 'SSO/junit/test-results.xml'
-    failTaskOnFailedTests: true
-    testRunTitle: 'SSO Test Results'
-    publishRunAttachments: true  # Publishes the test results as artifacts
-
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      $testResults = [xml](Get-Content "SSO/junit/test-results.xml")
-      $total = $testResults.testsuites.testsuite.tests
-      $failures = $testResults.testsuites.testsuite.failures
-      $passed = $total - $failures
-      $percentage = [math]::Round(($passed / $total) * 100, 2)
-      Write-Host "##vso[task.setvariable variable=passPercentage;]$percentage"
-      Write-Host "Test Passed Percentage: $percentage%"
-
+    SourceFolder: '$(system.defaultworkingdirectory)'
+    Contents: '**/*.jar'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+  condition: succeededOrFailed()
+  
+  steps:
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
   inputs:
-    PathtoPublish: 'SSO/junit'
-    ArtifactName: 'TestResults'
-    publishLocation: 'Container'
-
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo "Test Passed Percentage: $(passPercentage)%"
+    PathtoPublish: '$(build.artifactstagingdirectory)'
   condition: succeededOrFailed()
