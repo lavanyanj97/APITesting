@@ -8,32 +8,34 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 import configparser
+from cryptography.fernet import Fernet
 from webdriver_manager.chrome import ChromeDriverManager
 
-# Load configuration
+# Load encryption key
+with open('secret.key', 'rb') as key_file:
+    key = key_file.read()
+
+fernet = Fernet(key)
+
+# Load and decrypt configuration
 config = configparser.ConfigParser()
 config.read('config.ini')
+encrypted_email = config.get('credentials', 'email')
+encrypted_password = config.get('credentials', 'password')
+email = fernet.decrypt(encrypted_email.encode()).decode()
+password = fernet.decrypt(encrypted_password.encode()).decode()
 
-def get_credentials(section):
-    email = config.get(section, 'email')
-    password = config.get(section, 'password')
-    return email, password
+# Define a wrong password
+wrong_password = "wrong_password"
 
 @pytest.fixture(scope="module")
 def driver():
-    # Get wrong credentials from config
-    email, password = get_credentials('credentials_wrong')
-
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.implicitly_wait(10)
-
-    # Pass email and password to the test
-    driver.email = email
-    driver.password = password
 
     yield driver
     driver.quit()
@@ -47,20 +49,15 @@ def click_element(wait, locator):
         except StaleElementReferenceException:
             print("StaleElementReferenceException encountered. Retrying...")
 
-@pytest.mark.order(2)
-def test_loginnegative(driver):
+@pytest.mark.order(1)
+def test_login(driver):
     wait = WebDriverWait(driver, 10)
     driver.get("https://login.microsoftonline.com/")
-
-    email = driver.email
-    password = driver.password
 
     # Check if the user is already logged in
     try:
         profile_icon = wait.until(EC.presence_of_element_located((By.ID, "mectrl_headerPicture")))
         print("User is already logged in. Proceeding to check other applications.")
-        # Skip login process if already logged in
-        return
     except TimeoutException:
         print("User is not logged in. Proceeding with login.")
 
@@ -71,7 +68,7 @@ def test_loginnegative(driver):
     next_button.click()
 
     password_field = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
-    password_field.send_keys(password)
+    password_field.send_keys(wrong_password)  # Use the wrong password here
 
     click_element(wait, (By.ID, "idSIButton9"))
 
@@ -87,7 +84,7 @@ def test_loginnegative(driver):
     ]
 
     # Check login status for each URL
-    none_logged_in = True
+    all_failed = True
     for url, check_element in urls:
         driver.execute_script(f"window.open('{url}', '_blank');")
         driver.switch_to.window(driver.window_handles[-1])
@@ -97,8 +94,8 @@ def test_loginnegative(driver):
             else:
                 wait.until(EC.presence_of_element_located((By.XPATH, check_element)))
             print(f"Successfully logged into {url}")
-            none_logged_in = False
+            all_failed = False
         except TimeoutException:
             print(f"Failed to log into {url}")
 
-    assert none_logged_in, "User is logged into at least one URL"
+    assert all_failed, "Some URLs were logged in successfully, but they should have failed."

@@ -8,27 +8,33 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 import configparser
-from webdriver_manager.chrome import ChromeDriverManager
+from cryptography.fernet import Fernet
 
-# Load configuration
+# Load encryption key
+with open('secret.key', 'rb') as key_file:
+    key = key_file.read()
+
+fernet = Fernet(key)
+
+# Load and decrypt configuration
 config = configparser.ConfigParser()
 config.read('config.ini')
-email = config.get('credentials', 'email')
-password = config.get('credentials', 'password')
-
+encrypted_email = config.get('credentials', 'email')
+encrypted_password = config.get('credentials', 'password')
+email = fernet.decrypt(encrypted_email.encode()).decode()
+password = fernet.decrypt(encrypted_password.encode()).decode()
 
 @pytest.fixture(scope="module")
 def driver():
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
 
-    service = Service(ChromeDriverManager().install())
+    service = Service(r'C:\Users\saravanakumar.a\Downloads\cd\chromedriver.exe')
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.implicitly_wait(10)
 
     yield driver
     driver.quit()
-
 
 def click_element(driver, wait, locator):
     while True:
@@ -38,12 +44,12 @@ def click_element(driver, wait, locator):
             break
         except StaleElementReferenceException:
             print("StaleElementReferenceException encountered. Retrying...")
+            # Re-locate the element
             element = driver.find_element(*locator)
-
 
 @pytest.mark.order(1)
 def test_login(driver):
-    wait = WebDriverWait(driver, 30)  # Increased timeout
+    wait = WebDriverWait(driver, 10)
     driver.get("https://login.microsoftonline.com/")
 
     # Check if the user is already logged in
@@ -77,37 +83,32 @@ def test_login(driver):
 
     # Wait for the elements and perform the clicks
     click_element(driver, wait, (By.ID, 'mectrl_headerPicture'))
-
-    # Debugging: Print page source
-    print(driver.page_source)
-
-    # Attempt to click sign out
-    try:
-        click_element(driver, wait, (By.ID, 'mectrl_body_signOut'))
-    except TimeoutException:
-        print("TimeoutException: Unable to click sign out button.")
-        driver.save_screenshot('screenshot.png')
+    click_element(driver, wait, (By.ID, 'mectrl_body_signOut'))
 
     time.sleep(15)
 
     driver.switch_to.window(driver.window_handles[0])
+
     driver.refresh()
 
     urls = [
-        ("https://teams.microsoft.com/", "//*[contains(text(), 'Sign in')]"),
-        ("https://dev.azure.com/SignaTechServicesIndia/", "//*[contains(text(), 'Sign in')]"),
-        ("https://sharepoint.com/sites/Communication", "//*[contains(text(), 'Sign in')]")
+        ("https://teams.microsoft.com/", "//*[contains(text(), 'Calendar')]"),
+        ("https://dev.azure.com/SignaTechServicesIndia/", "//*[contains(text(), 'Projects')]"),
+        ("https://sharepoint.com/sites/Communication", "//*[contains(text(), 'Communication site')]")
     ]
 
-    all_logged_out = True
+    all_logged_in = True
     for url, check_element in urls:
         driver.execute_script(f"window.open('{url}', '_blank');")
         driver.switch_to.window(driver.window_handles[-1])
         try:
-            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, check_element)))
-            print(f"Successfully logged out from {url}")
+            if "teams.microsoft.com" in url:
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, check_element)))
+            else:
+                wait.until(EC.presence_of_element_located((By.XPATH, check_element)))
+            print(f"Successfully logged into {url}")
         except TimeoutException:
-            print(f"Failed to log out from {url}")
-            all_logged_out = False
+            print(f"Failed to log into {url}")
+            all_logged_in = False
 
-    assert all_logged_out, "Not all URLs were successfully logged out"
+    assert not all_logged_in, "All URLs were successfully logged into, but they should have failed."

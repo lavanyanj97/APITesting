@@ -8,13 +8,22 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 import configparser
+from cryptography.fernet import Fernet
 from webdriver_manager.chrome import ChromeDriverManager
 
-# Load configuration
+# Load encryption key
+with open('secret.key', 'rb') as key_file:
+    key = key_file.read()
+
+fernet = Fernet(key)
+
+# Load and decrypt configuration
 config = configparser.ConfigParser()
 config.read('config.ini')
-email = config.get('credentials', 'email')
-password = config.get('credentials', 'password')
+encrypted_email = config.get('credentials', 'email')
+encrypted_password = config.get('credentials', 'password')
+email = fernet.decrypt(encrypted_email.encode()).decode()
+password = fernet.decrypt(encrypted_password.encode()).decode()
 
 @pytest.fixture(scope="module")
 def driver():
