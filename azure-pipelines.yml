@@ -22,8 +22,12 @@ steps:
 
 - script: |
     cd SSO
-    pytest --cov=. --cov-report=xml --junitxml=junit/test-results.xml
-  displayName: 'Run test suite and generate coverage report'
+    pytest --junitxml=junit/test-results.xml
+  displayName: 'Run test suite'
+
+- script: |
+    python calculate_pass_percentage.py junit/test-results.xml
+  displayName: 'Calculate pass percentage'
 
 - task: PublishTestResults@2
   inputs:
@@ -33,8 +37,8 @@ steps:
     testRunTitle: 'Python Selenium Tests'
   displayName: 'Publish Test Results'
 
-- task: PublishCodeCoverageResults@1
+- task: PublishPipelineArtifact@1
   inputs:
-    codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/SSO/coverage.xml'
-  displayName: 'Publish Code Coverage Results'
+    targetPath: '$(System.DefaultWorkingDirectory)/SSO'
+    artifactName: 'SSO_Artifact'
+  displayName: 'Publish Artifact'
