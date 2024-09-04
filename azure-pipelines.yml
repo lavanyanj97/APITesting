@@ -23,5 +23,6 @@ steps:
   displayName: 'Install Chrome and ChromeDriver'
 
 - script: |
-    python SSO/testsuite.py
-  displayName: 'Run testsuite.py'
+    pytest test_login.py test_loginnegative.py test_logout.py
+  workingDirectory: SSO
+  displayName: 'Run tests with pytest'
