@@ -1,28 +1,36 @@
 trigger:
-- main  # or the branch you want to trigger the pipeline
+- main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.10.14'
+    versionSpec: '3.12.5'
     addToPath: true
 
 - script: |
     python -m pip install --upgrade pip
-    pip install pytest
     pip install -r SSO/requirements.txt
   displayName: 'Install dependencies'
 
 - script: |
-    sudo apt-get update
-    sudo apt-get install -y chromium-browser
-    sudo apt-get install -y chromium-chromedriver
+    choco install googlechrome -y
+    choco install chromedriver -y
+    setx PATH "%PATH%;C:\Program Files\Google\Chrome\Application;C:\tools\chromedriver"
   displayName: 'Install Chrome and ChromeDriver'
 
 - script: |
-    pytest test_login.py test_loginnegative.py test_logout.py
-  workingDirectory: SSO
-  displayName: 'Run tests with pytest'
+    echo "Chrome version: $(chrome --version)"
+    echo "ChromeDriver version: $(chromedriver --version)"
+    cd SSO
+    pytest test_login.py --doctest-modules --junitxml=junit/test-results.xml
+    pytest test_loginnegative.py --doctest-modules --junitxml=junit/test-results.xml
+    pytest test_logout.py --doctest-modules --junitxml=junit/test-results.xml
+  displayName: 'Run test suite'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'SSO/junit/test-results.xml'
