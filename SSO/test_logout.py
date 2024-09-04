@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException
 import configparser
 from cryptography.fernet import Fernet
+from webdriver_manager.chrome import ChromeDriverManager
 
 # Load encryption key
 with open('secret.key', 'rb') as key_file:
@@ -29,8 +30,8 @@ def driver():
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
 
-    service = Service(r'C:\Users\saravanakumar.a\Downloads\cd\chromedriver.exe')
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    # Use ChromeDriverManager to automatically manage ChromeDriver
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     driver.implicitly_wait(10)
 
     yield driver
