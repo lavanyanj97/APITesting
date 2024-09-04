@@ -1,0 +1,58 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+# Use a specific version of Python
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12.5'
+    addToPath: true
+  displayName: 'Set up Python 3.12.5'
+
+# Install Python dependencies
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r SSO/requirements.txt
+    pip install webdriver-manager
+  displayName: 'Install dependencies'
+
+# Install ChromeDriver using WebDriver Manager
+- script: |
+    python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
+  displayName: 'Install ChromeDriver using WebDriver Manager'
+
+# Run the test suite and save results in JUnit format
+- script: |
+    mkdir -p SSO/junit
+    cd SSO
+    pytest --junitxml=junit/test-results.xml
+  displayName: 'Run test suite'
+
+# Publish test results to Azure DevOps
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/junit/test-results.xml'
+    mergeTestResults: true
+    failTaskOnFailedTests: true
+  displayName: 'Publish Test Results'
+  condition: always()  # Ensure the task always runs
+
+# Publish artifacts if needed (e.g., test reports or build artifacts)
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'SSO/junit'
+    artifactName: 'test-results'
+  displayName: 'Publish Test Results Artifact'
+  condition: always()  # Ensure the task always runs
+
+# Add debugging information to verify paths and results
+- script: |
+    echo "Checking directory contents:"
+    ls -R SSO
+    echo "Test results XML file:"
+    cat SSO/junit/test-results.xml
+  displayName: 'Debug Output'

@@ -13,32 +13,18 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     pip install -r SSO/requirements.txt
-    pip install pytest pytest-cov
   displayName: 'Install dependencies'
-
-- script: |
-    python -c "from webdriver_manager.chrome import ChromeDriverManager; ChromeDriverManager().install()"
-  displayName: 'Install ChromeDriver using WebDriver Manager'
 
 - script: |
     cd SSO
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
-- script: |
-    python calculate_pass_percentage.py junit/test-results.xml
-  displayName: 'Calculate pass percentage'
-
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'SSO/junit/test-results.xml'
+    mergeTestResults: true
     failTaskOnFailedTests: true
-    testRunTitle: 'Python Selenium Tests'
   displayName: 'Publish Test Results'
-
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/SSO'
-    artifactName: 'SSO_Artifact'
-  displayName: 'Publish Artifact'
+  condition: always()  # Ensures this task runs regardless of previous step outcomes
