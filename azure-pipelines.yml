@@ -14,6 +14,7 @@ steps:
     python -m pip install --upgrade pip
     pip install pytest
     pip install -r SSO/requirements.txt
+    pip install webdriver_manager  # Ensure webdriver_manager is installed
   displayName: 'Install dependencies'
 
 - script: |
