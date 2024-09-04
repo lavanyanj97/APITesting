@@ -15,12 +15,6 @@ steps:
     pip install -r SSO/requirements.txt
   displayName: 'Install dependencies'
 
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '6.x'
-    installationPath: $(Agent.ToolsDirectory)/dotnet
-
 - script: |
     sudo apt-get update
     sudo apt-get install -y wget unzip
@@ -30,9 +24,11 @@ steps:
   displayName: 'Install Chrome and ChromeDriver'
 
 - script: |
+    export PATH=$PATH:/usr/local/bin
+    export CHROME_BIN=/usr/bin/google-chrome
+    export CHROME_DRIVER=/usr/local/bin/chromedriver
     cd SSO
     pytest test_login.py
     pytest test_loginnegative.py
     pytest test_logout.py
   displayName: 'Run test suite'
-
