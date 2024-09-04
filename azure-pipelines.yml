@@ -27,3 +27,4 @@ steps:
     mergeTestResults: true
     failTaskOnFailedTests: true
   displayName: 'Publish Test Results'
+  condition: always()  # Ensures this task runs regardless of previous step outcomes
