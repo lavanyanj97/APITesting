@@ -47,7 +47,7 @@ def click_element(wait, locator):
             print("StaleElementReferenceException encountered. Retrying...")
 
 def test_login(driver):
-    wait = WebDriverWait(driver, 20)  # Increased wait time
+    wait = WebDriverWait(driver, 10)
     driver.get("https://login.microsoftonline.com/")
 
     # Check if the user is already logged in
@@ -57,21 +57,21 @@ def test_login(driver):
     except TimeoutException:
         print("User is not logged in. Proceeding with login.")
 
-        email_field = wait.until(EC.presence_of_element_located((By.ID, "i0116")))
-        email_field.send_keys(email)
+    email_field = wait.until(EC.presence_of_element_located((By.ID, "i0116")))
+    email_field.send_keys(email)
 
-        next_button = wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
-        next_button.click()
+    next_button = wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
+    next_button.click()
 
-        password_field = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
-        password_field.send_keys(password)
+    password_field = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
+    password_field.send_keys(password)
 
-        click_element(wait, (By.ID, "idSIButton9"))
+    click_element(wait, (By.ID, "idSIButton9"))
 
-        print("Proceeding...")
-        time.sleep(5)  # Reduced sleep time
+    print("Proceeding...")
+    time.sleep(30)
 
-        click_element(wait, (By.ID, "idSIButton9"))
+    click_element(wait, (By.ID, "idSIButton9"))
 
     urls = [
         ("https://login.microsoftonline.com/", "//*[contains(text(), 'Welcome to Microsoft 365')]"),
@@ -93,8 +93,5 @@ def test_login(driver):
         except TimeoutException:
             print(f"Failed to log into {url}")
             all_logged_in = False
-        finally:
-            driver.close()
-            driver.switch_to.window(driver.window_handles[0])
 
     assert all_logged_in, "Some URLs failed to log in"
