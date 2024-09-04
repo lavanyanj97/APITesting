@@ -15,14 +15,6 @@ steps:
     pip install -r SSO/requirements.txt
   displayName: 'Install dependencies'
 
-- task: DownloadSecureFile@1
-  inputs:
-    secureFile: 'secret.key'
-
-- script: |
-    cp $(Agent.TempDirectory)/secret.key SSO/secret.key
-  displayName: 'Copy secret.key'
-
 - script: |
     python SSO/testsuite.py
   displayName: 'Run testsuite.py'
