@@ -25,16 +25,14 @@ steps:
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
 
-steps:
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
     SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**/*.jar'
+    Contents: '**/*'
     TargetFolder: '$(build.artifactstagingdirectory)'
   condition: succeededOrFailed()
-  
-  steps:
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
   inputs:
