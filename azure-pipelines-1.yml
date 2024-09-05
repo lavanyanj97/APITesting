@@ -31,6 +31,7 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: 'SSO/reports'  # Path where the HTML report is stored
+    targetPath: 'SSO/reports'  # Ensure this path is correct and contains the report
     artifactName: 'test-reports'
   displayName: 'Publish Test Reports Artifact'
+  condition: always()  # Ensures this task runs regardless of previous step outcomes
