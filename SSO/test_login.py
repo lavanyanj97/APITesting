@@ -1,5 +1,6 @@
 import time
 import pytest
+import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -10,6 +11,9 @@ from selenium.common.exceptions import StaleElementReferenceException, TimeoutEx
 import configparser
 from cryptography.fernet import Fernet
 from webdriver_manager.chrome import ChromeDriverManager
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load encryption key
 with open('secret.key', 'rb') as key_file:
@@ -44,37 +48,44 @@ def click_element(wait, locator):
             element.click()
             break
         except StaleElementReferenceException:
-            print("StaleElementReferenceException encountered. Retrying...")
+            logging.warning("StaleElementReferenceException encountered. Retrying...")
         except TimeoutException:
             logging.error(f"TimeoutException: Element with locator {locator} could not be clicked.")
             raise TimeoutException(f"User authentication failed. Could not locate or click element {locator}")
 
 def test_login(driver):
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 15)  # Increased timeout duration to 15 seconds
     driver.get("https://login.microsoftonline.com/")
 
     # Check if the user is already logged in
     try:
         profile_icon = wait.until(EC.presence_of_element_located((By.ID, "mectrl_headerPicture")))
-        print("User is already logged in. Proceeding to check other applications.")
+        logging.info("User is already logged in. Proceeding to check other applications.")
+        return  # Exit the test if already logged in
     except TimeoutException:
-        print("User is not logged in. Proceeding with login.")
+        logging.info("User is not logged in. Proceeding with login.")
 
-    email_field = wait.until(EC.presence_of_element_located((By.ID, "i0116")))
-    email_field.send_keys(email)
+    try:
+        email_field = wait.until(EC.presence_of_element_located((By.ID, "i0116")))
+        email_field.send_keys(email)
 
-    next_button = wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
-    next_button.click()
+        next_button = wait.until(EC.element_to_be_clickable((By.ID, "idSIButton9")))
+        next_button.click()
 
-    password_field = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
-    password_field.send_keys(password)
+        password_field = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
+        password_field.send_keys(password)
 
-    click_element(wait, (By.ID, "idSIButton9"))
+        click_element(wait, (By.ID, "idSIButton9"))
 
-    print("Proceeding...")
+        # Check if login was successful by looking for a specific element
+        wait.until(EC.presence_of_element_located((By.ID, "mectrl_headerPicture")))
+        logging.info("Authentication successful. Proceeding to check other applications.")
+    except TimeoutException as e:
+        logging.error("Authentication failed due to inability to locate or click the 'Sign in' button.")
+        raise TimeoutException("User authentication failed. Could not locate or click the 'Sign in' button. Stopping further execution.")
+
+    logging.info("Proceeding...")
     time.sleep(30)
-
-    click_element(wait, (By.ID, "idSIButton9"))
 
     urls = [
         ("https://login.microsoftonline.com/", "//*[contains(text(), 'Welcome to Microsoft 365')]"),
@@ -92,9 +103,9 @@ def test_login(driver):
                 WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, check_element)))
             else:
                 wait.until(EC.presence_of_element_located((By.XPATH, check_element)))
-            print(f"Successfully logged into {url}")
+            logging.info(f"Successfully logged into {url}")
         except TimeoutException:
-            print(f"Failed to log into {url}")
+            logging.error(f"Failed to log into {url}")
             all_logged_in = False
 
     assert all_logged_in, "Some URLs failed to log in"
