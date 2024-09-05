@@ -3,3 +3,4 @@ cryptography
 configparser
 pytest
 webdriver_manager
+pytest-html
