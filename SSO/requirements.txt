@@ -4,3 +4,4 @@ configparser
 pytest
 webdriver_manager
 pytest-html
+allure-pytest

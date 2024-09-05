@@ -37,16 +37,17 @@ def driver():
     yield driver
     driver.quit()
 
-def click_element(driver, wait, locator):
+def click_element(wait, locator):
     while True:
         try:
             element = wait.until(EC.element_to_be_clickable(locator))
             element.click()
             break
         except StaleElementReferenceException:
-            print("StaleElementReferenceException encountered. Retrying...")
-            # Re-locate the element
-            element = driver.find_element(*locator)
+            logging.warning("StaleElementReferenceException encountered. Retrying...")
+        except TimeoutException:
+            logging.error(f"TimeoutException: Element with locator {locator} could not be clicked.")
+            raise TimeoutException(f"User authentication failed. Could not locate or click element {locator}")
 
 def test_logout(driver):
     wait = WebDriverWait(driver, 10)
