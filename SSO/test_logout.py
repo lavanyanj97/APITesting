@@ -37,17 +37,16 @@ def driver():
     yield driver
     driver.quit()
 
-def click_element(wait, locator):
+def click_element(driver, wait, locator):
     while True:
         try:
             element = wait.until(EC.element_to_be_clickable(locator))
             element.click()
             break
         except StaleElementReferenceException:
-            logging.warning("StaleElementReferenceException encountered. Retrying...")
-        except TimeoutException:
-            logging.error(f"TimeoutException: Element with locator {locator} could not be clicked.")
-            raise TimeoutException(f"User authentication failed. Could not locate or click element {locator}")
+            print("StaleElementReferenceException encountered. Retrying...")
+            # Re-locate the element
+            element = driver.find_element(*locator)
 
 def test_logout(driver):
     wait = WebDriverWait(driver, 10)
@@ -74,7 +73,11 @@ def test_logout(driver):
     print("Proceeding...")
     time.sleep(30)
 
-    click_element(driver, wait, (By.ID, "idSIButton9"))
+    try:
+        click_element(driver, wait, (By.ID, "idSIButton9"))
+    except TimeoutException:
+        print("TimeoutException: Element with ID 'idSIButton9' not found after waiting.")
+        raise
 
     # Open the URL in a new tab
     driver.execute_script("window.open('https://dev.azure.com/SignaTechServicesIndia/', '_blank');")
