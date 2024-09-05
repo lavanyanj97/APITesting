@@ -10,6 +10,10 @@ from selenium.common.exceptions import StaleElementReferenceException, TimeoutEx
 import configparser
 from cryptography.fernet import Fernet
 from webdriver_manager.chrome import ChromeDriverManager
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load encryption key
 with open('secret.key', 'rb') as key_file:
@@ -44,7 +48,10 @@ def click_element(wait, locator):
             element.click()
             break
         except StaleElementReferenceException:
-            print("StaleElementReferenceException encountered. Retrying...")
+            logging.warning("StaleElementReferenceException encountered. Retrying...")
+        except TimeoutException:
+            logging.error(f"TimeoutException: Element with locator {locator} could not be clicked.")
+            raise TimeoutException(f"User authentication failed. Could not locate or click element {locator}")
 
 def test_login(driver):
     wait = WebDriverWait(driver, 10)
@@ -53,9 +60,9 @@ def test_login(driver):
     # Check if the user is already logged in
     try:
         profile_icon = wait.until(EC.presence_of_element_located((By.ID, "mectrl_headerPicture")))
-        print("User is already logged in. Proceeding to check other applications.")
+        logging.info("User is already logged in. Proceeding to check other applications.")
     except TimeoutException:
-        print("User is not logged in. Proceeding with login.")
+        logging.info("User is not logged in. Proceeding with login.")
 
     email_field = wait.until(EC.presence_of_element_located((By.ID, "i0116")))
     email_field.send_keys(email)
@@ -66,12 +73,20 @@ def test_login(driver):
     password_field = wait.until(EC.presence_of_element_located((By.ID, "i0118")))
     password_field.send_keys(password)
 
-    click_element(wait, (By.ID, "idSIButton9"))
+    try:
+        click_element(wait, (By.ID, "idSIButton9"))
+    except TimeoutException as e:
+        logging.error("Authentication failed due to inability to locate or click the 'Sign in' button.")
+        raise e
 
-    print("Proceeding...")
+    logging.info("Proceeding...")
     time.sleep(30)
 
-    click_element(wait, (By.ID, "idSIButton9"))
+    try:
+        click_element(wait, (By.ID, "idSIButton9"))
+    except TimeoutException as e:
+        logging.error("Authentication failed during second click due to inability to locate or click the 'Sign in' button.")
+        raise e
 
     urls = [
         ("https://login.microsoftonline.com/", "//*[contains(text(), 'Welcome to Microsoft 365')]"),
@@ -89,9 +104,9 @@ def test_login(driver):
                 WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, check_element)))
             else:
                 wait.until(EC.presence_of_element_located((By.XPATH, check_element)))
-            print(f"Successfully logged into {url}")
+            logging.info(f"Successfully logged into {url}")
         except TimeoutException:
-            print(f"Failed to log into {url}")
+            logging.error(f"Failed to log into {url}")
             all_logged_in = False
 
     assert all_logged_in, "Some URLs failed to log in"
