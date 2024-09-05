@@ -17,8 +17,8 @@ steps:
 
 - script: |
     cd SSO
-    pytest --junitxml=junit/test-results.xml
-  displayName: 'Run test suite'
+    pytest --junitxml=junit/test-results.xml --html=reports/test-report.html
+  displayName: 'Run test suite and generate HTML report'
 
 - task: PublishTestResults@2
   inputs:
@@ -28,3 +28,9 @@ steps:
     failTaskOnFailedTests: true
   displayName: 'Publish Test Results'
   condition: always()  # Ensures this task runs regardless of previous step outcomes
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'SSO/reports'  # Path where the HTML report is stored
+    artifactName: 'test-reports'
+  displayName: 'Publish Test Reports Artifact'
