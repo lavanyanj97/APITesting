@@ -50,8 +50,9 @@ def click_element(wait, locator):
         except StaleElementReferenceException:
             logging.warning("StaleElementReferenceException encountered. Retrying...")
         except TimeoutException:
-            logging.error(f"TimeoutException: Element with locator {locator} could not be clicked.")
-            raise TimeoutException(f"User authentication failed. Could not locate or click element {locator}")
+            error_message = f"User authentication failed. Could not locate or click element {locator}"
+            logging.error(f"TimeoutException: {error_message}")
+            raise TimeoutException(error_message)
 
 def test_login(driver):
     wait = WebDriverWait(driver, 10)
