@@ -16,22 +16,23 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    cd SSO
-    pytest --junitxml=junit/test-results.xml --html=reports/test-report.html
-  displayName: 'Run test suite and generate HTML report'
+    curl -sL https://github.com/allure-framework/allure2/releases/download/2.17.1/allure-2.17.1.zip -o allure.zip
+    unzip allure.zip -d allure
+    echo "##vso[task.prependpath]$(System.DefaultWorkingDirectory)/allure/allure-2.17.1/bin"
+  displayName: 'Install Allure CLI'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: 'SSO/junit/test-results.xml'
-    mergeTestResults: true
-    failTaskOnFailedTests: true
-  displayName: 'Publish Test Results'
-  condition: always()  # Ensures this task runs regardless of previous step outcomes
+- script: |
+    cd SSO
+    pytest --alluredir=allure-results
+  displayName: 'Run test suite and generate Allure results'
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: 'SSO/reports'  # Ensure this path is correct and contains the report
-    artifactName: 'test-reports'
-  displayName: 'Publish Test Reports Artifact'
-  condition: always()  # Ensures this task runs regardless of previous step outcomes
+    targetPath: 'SSO/allure-results'
+    artifactName: 'allure-results'
+    publishLocation: 'pipeline'
+  displayName: 'Publish Allure Results as Pipeline Artifact'
+
+- script: |
+    allure serve SSO/allure-results
+  displayName: 'Generate and Serve Allure Report'
