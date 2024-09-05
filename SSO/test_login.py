@@ -82,12 +82,6 @@ def test_login(driver):
     logging.info("Proceeding...")
     time.sleep(30)
 
-    try:
-        click_element(wait, (By.ID, "idSIButton9"))
-    except TimeoutException as e:
-        logging.error("Authentication failed during second click due to inability to locate or click the 'Sign in' button.")
-        raise e
-
     urls = [
         ("https://login.microsoftonline.com/", "//*[contains(text(), 'Welcome to Microsoft 365')]"),
         ("https://teams.microsoft.com/", "//*[contains(text(), 'Calendar')]"),
