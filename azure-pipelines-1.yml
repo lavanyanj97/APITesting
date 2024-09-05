@@ -16,12 +16,6 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    curl -sL https://github.com/allure-framework/allure2/releases/download/2.17.1/allure-2.17.1.zip -o allure.zip
-    unzip allure.zip -d allure
-    echo "##vso[task.prependpath]$(System.DefaultWorkingDirectory)/allure/allure-2.17.1/bin"
-  displayName: 'Install Allure CLI'
-
-- script: |
     cd SSO
     pytest --alluredir=allure-results
   displayName: 'Run test suite and generate Allure results'
@@ -29,10 +23,11 @@ steps:
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: 'SSO/allure-results'
-    artifactName: 'allure-results'
+    artifact: 'allure-results'
     publishLocation: 'pipeline'
   displayName: 'Publish Allure Results as Pipeline Artifact'
 
 - script: |
     allure serve SSO/allure-results
   displayName: 'Generate and Serve Allure Report'
+  condition: always()  # Ensure this step runs even if previous steps fail
