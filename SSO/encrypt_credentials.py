@@ -13,10 +13,6 @@ def encrypt_data(data):
     encrypted_data = fernet.encrypt(data.encode())
     return encrypted_data.decode()
 
-# **DO NOT STORE CREDENTIALS IN PLAIN TEXT**
-# Use environment variables or other secure mechanisms
-
-# Example usage (assuming you have SECRET_KEY set)
 # correct_email = "saravanakumar.a@signatech.com"
 # correct_password = "Cristiano7$S"
 # wrong_email = "invalid_email"
