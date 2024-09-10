@@ -84,7 +84,7 @@ def test_logout(driver):
 
     # Switch to the new tab
     driver.switch_to.window(driver.window_handles[-1])
-
+    time.sleep(15)
     # Wait for the elements and perform the clicks
     click_element(driver, wait, (By.ID, 'mectrl_headerPicture'))
     click_element(driver, wait, (By.ID, 'mectrl_body_signOut'))
