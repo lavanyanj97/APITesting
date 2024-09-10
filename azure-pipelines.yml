@@ -1,31 +1,28 @@
 trigger:
 - main
-
+ 
 pool:
   vmImage: 'windows-latest'
-
+ 
 steps:
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.x'
     addToPath: true
-
+ 
 - script: |
     python -m pip install --upgrade pip
     pip install -r SSO/requirements.txt
   displayName: 'Install dependencies'
-
+ 
 - script: |
     cd SSO
     pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
-
+ 
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'junit/test-results.xml'
-    failTestRunOnTestFailure: false
-    codeCoverageTool: 'Cobertura'
-    codeCoverageFiles: '**/*.coverage'
+    testResultsFiles: '**/*.xml'
   displayName: 'Publish Test Results'
-  condition: always()
+  condition: always()  
