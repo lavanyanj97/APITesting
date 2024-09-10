@@ -1,5 +1,5 @@
 trigger:
-- master  # Update this to match your branch name
+- master  
 
 pool:
   vmImage: 'windows-latest'
@@ -25,4 +25,4 @@ steps:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/junit/test-results.xml'
   displayName: 'Publish Test Results'
-  condition: always()  # Ensures this task runs regardless of previous step outcomes
+  condition: always()  
