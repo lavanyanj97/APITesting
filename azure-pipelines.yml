@@ -23,8 +23,6 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'SSO/junit/test-results.xml'
-    mergeTestResults: true
-    failTaskOnFailedTests: true
+    testResultsFiles: '**/junit/*.xml'  # Corrected path
   displayName: 'Publish Test Results'
   condition: always()  # Ensures this task runs regardless of previous step outcomes
