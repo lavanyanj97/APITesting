@@ -17,12 +17,12 @@ steps:
  
 - script: |
     cd SSO
-    pytest --r junit --reporter-junit-export ui/results.xml
+    pytest --junitxml=junit/test-results.xml
   displayName: 'Run test suite'
  
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: '**/ui/*.xml'
+    testResultsFiles: '**/*.xml'
   displayName: 'Publish Test Results'
   condition: always()  
