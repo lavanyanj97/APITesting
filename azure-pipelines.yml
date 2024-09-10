@@ -23,6 +23,6 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: '**/junit/test-results.xml'
+    testResultsFiles: '**/*.xml'
   displayName: 'Publish Test Results'
-  condition: always()  
+  
