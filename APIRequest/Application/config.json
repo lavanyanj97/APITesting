@@ -1,0 +1,13 @@
+{
+    "data_applicationpost": {
+        "name": "Updated Applications",
+        "description": "Updated descriptions",
+        "cultureCode": "en-US",
+        "translationUpdatedBy": "test",
+        "translationRowVersion": "",
+        "id": null,
+        "updatedBy": "tester",
+        "rowVersion": "",
+        "isActive": false
+    }
+}
