@@ -1,6 +1,12 @@
 import requests
 import json
-from data import data_applicationpost  # Importing the specific dataset from data.py
+import pytest
+
+# Load the configuration data
+with open('config.json', 'r') as config_file:
+    config_data = json.load(config_file)
+
+data_applicationpost = config_data['data_applicationpost']
 
 base_url = "https://localhost:7084"
 
@@ -42,6 +48,7 @@ def post_request():
     json_data = response.json()
     assert len(json_data) > 0, "Expected response to contain applications, but it was empty"
 
+    # Print the JSON response body
     print("json response body:", json.dumps(json_data, indent=4))
 
     # Extracting the 'id' from the response
@@ -49,5 +56,10 @@ def post_request():
 
     return user_id
 
+def test_sample():
+    user_id = post_request()
+    print(f"Extracted user_id: {user_id}")
+
 # Call the function
-post_request()
+if __name__ == "__main__":
+    post_request()
