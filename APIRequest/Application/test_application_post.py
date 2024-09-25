@@ -159,3 +159,39 @@ def test_post_request_with_translationUpdatedBy_null():
     response_text = response.text
     assert "TranslationUpdatedBy is required for updates" in response_text, "Expected response to include 'TranslationUpdatedBy is required for updates'"
     print("Body matches string passed")
+
+def test_post_request_with_cultureCode_too_long():
+    response = post_request(data_applicationpostculturecodetoolong)
+    assert response.status_code == 400, f"Expected status code 400, but got {response.status_code}"
+    print("Status code is 400 passed")
+
+    response_text = response.text
+    assert "The field CultureCode must be a string or array type with a maximum length of '10'." in response_text, "Expected response to include 'cultureCode must not exceed 10 characters'"
+    print("Body matches string passed")
+
+def test_post_request_with_cultureCode_not_string():
+    response = post_request(data_applicationpostculturecodenotstring)
+    assert response.status_code == 400, f"Expected status code 400, but got {response.status_code}"
+    print("Status code is 400 passed")
+
+    response_text = response.text
+    assert "cultureCode must be a string" in response_text, "Expected response to include 'cultureCode must be a string'"
+    print("Body matches string passed")
+
+def test_post_request_with_cultureCode_empty():
+    response = post_request(data_applicationpostculturecodeempty)
+    assert response.status_code == 400, f"Expected status code 400, but got {response.status_code}"
+    print("Status code is 400 passed")
+
+    response_text = response.text
+    assert "The CultureCode field is required." in response_text, "Expected response to include 'cultureCode is required'"
+    print("Body matches string passed")
+
+def test_post_request_with_translationRowVersion_null():
+    response = post_request(data_applicationposttranslationrowversionnull)
+    assert response.status_code == 201, f"Expected status code 201, but got {response.status_code}"
+    print("Status code is 201 passed")
+
+# Run the tests
+if __name__ == "__main__":
+    pytest.main()
