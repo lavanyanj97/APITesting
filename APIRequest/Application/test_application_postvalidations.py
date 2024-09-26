@@ -192,8 +192,6 @@ def test_post_request_with_translationRowVersion_null():
     assert response.status_code == 201, f"Expected status code 201, but got {response.status_code}"
     print("Status code is 201 passed")
 
-
-
 # Run the tests
 if __name__ == "__main__":
     pytest.main()

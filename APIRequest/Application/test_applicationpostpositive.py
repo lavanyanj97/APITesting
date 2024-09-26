@@ -1,6 +1,5 @@
 import requests
 import json
-import pytest
 
 # Load the configuration data
 with open('config.json', 'r') as config_file:
@@ -51,14 +50,28 @@ def post_request():
     # Print the JSON response body
     print("json response body:", json.dumps(json_data, indent=4))
 
-    # Extracting the 'id' from the response
-    user_id = json_data["id"]
+    # Extracting the 'id', 'rowVersion', and 'translationRowVersion' from the response
+    valid_id = json_data["id"]
+    row_version = json_data.get("rowVersion")
+    translation_row_version = json_data.get("translationRowVersion")
 
-    return user_id
+    # Store the generated valid_id, rowVersion, and translationRowVersion in the config_data
+    config_data["valid_id"] = valid_id
+    config_data["rowVersion"] = row_version
+    config_data["translationRowVersion"] = translation_row_version
+
+    # Save the updated config back to config.json
+    with open('config.json', 'w') as config_file:
+        json.dump(config_data, config_file, indent=4)
+    print(f"Stored valid_id, rowVersion, and translationRowVersion in config.json: {valid_id}, {row_version}, {translation_row_version}")
+
+    return valid_id, row_version, translation_row_version
 
 def test_sample():
-    user_id = post_request()
-    print(f"Extracted user_id: {user_id}")
+    valid_id, row_version, translation_row_version = post_request()
+    print(f"Extracted valid_id: {valid_id}")
+    print(f"Extracted rowVersion: {row_version}")
+    print(f"Extracted translationRowVersion: {translation_row_version}")
 
 # Call the function
 if __name__ == "__main__":

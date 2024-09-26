@@ -9,5 +9,14 @@
         "updatedBy": "tester",
         "rowVersion": "",
         "isActive": false
-    }
+    },
+    "non_existing_culture_code": "ects",
+    "valid_id": "86370e2e-f375-49a1-bbef-79c3edd3c05c",
+    "invalid_id": "9",
+    "nonexisting_id": "9259b765-468c-4766-9c1f-f85424d6df9z",
+    "rowVersion": "AAAAAAABIWU=",
+    "translationRowVersion": "AAAAAAABITQ=",
+    "startdate": "2024-09-20",
+    "enddate": "2024-09-29",
+    "invalid_name": "invalid"
 }
