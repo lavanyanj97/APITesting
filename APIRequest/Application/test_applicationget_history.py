@@ -30,7 +30,7 @@ def test_get_application_history():
     json_data = response.json()
 
     # Optionally print the response body or error message
-    print("Valid ID response body:", json.dumps(json_data, indent=4))
+    #print("Valid ID response body:", json.dumps(json_data, indent=4))
 
 def test_get_application_history_with_nonexisting_id():
     config_data = load_config()
