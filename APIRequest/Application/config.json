@@ -14,9 +14,10 @@
     "valid_id": "147d7772-7f83-49a6-9996-2ed8ea395f83",
     "invalid_id": "9",
     "nonexisting_id": "9259b765-468c-4766-9c1f-f85424d6df9z",
-    "rowVersion": "AAAAAAABIWw=",
+    "rowVersion": "AAAAAAABIa8=",
     "translationRowVersion": "AAAAAAABIW0=",
     "startdate": "2024-09-20",
     "enddate": "2024-09-29",
-    "invalid_name": "invalid"
+    "invalid_name": "invalid",
+    "updated_once": true
 }
