@@ -13,7 +13,6 @@ data_applicationv['applicationId'] = valid_id  # Replace placeholder with actual
 
 base_url = "https://localhost:7084"
 
-
 def post_request(data):
     url = f"{base_url}/api/ApplicationVersion?api-version=1.0"
     print("post url: " + url)
@@ -37,7 +36,6 @@ def post_request(data):
             print("rowVersion updated and saved in config.json")
 
     return response
-
 
 def test_post_request():
     try:
