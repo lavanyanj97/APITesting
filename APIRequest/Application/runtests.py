@@ -7,7 +7,8 @@ test_files = [
     'test_applicationget.py',
     'test_applicationget_name.py',
     'test_applicationget_history.py',
-    'test_applicationget_name.py'  # Duplicate, ensure this is intentional
+    'test_applicationput.py',
+    'test_applicationgetid.py'
 ]
 
 # Run pytest for each test file in the specified order

@@ -11,13 +11,27 @@
         "isActive": false
     },
     "non_existing_culture_code": "ects",
-    "valid_id": "147d7772-7f83-49a6-9996-2ed8ea395f83",
+    "valid_id": "2f9e53da-4670-4eee-90c1-1a5f48e6f4e6",
     "invalid_id": "9",
     "nonexisting_id": "9259b765-468c-4766-9c1f-f85424d6df9z",
-    "rowVersion": "AAAAAAABIa8=",
-    "translationRowVersion": "AAAAAAABIW0=",
+    "rowVersion": "AAAAAAABIbI=",
+    "translationRowVersion": "AAAAAAABIbM=",
     "startdate": "2024-09-20",
     "enddate": "2024-09-29",
     "invalid_name": "invalid",
-    "updated_once": true
+    "updated_once": true,
+    "comment": "APPLICATIONDATAV",
+    "rowVersionv": "AAAAAAABMM4=",
+    "data_applicationv": {
+        "id": null,
+        "updatedBy": "Tester",
+        "rowVersion": "",
+        "applicationId": "2f9e53da-4670-4eee-90c1-1a5f48e6f4e6",
+        "major": 1,
+        "minor": 1,
+        "revision": 1,
+        "startDate": "2024-09-20",
+        "endDate": "2024-09-29"
+    },
+    "idv": "7e155da1-e0c0-42c3-9352-f48eda236638"
 }

@@ -50,10 +50,15 @@ def post_request():
     # Print the JSON response body
     print("json response body:", json.dumps(json_data, indent=4))
 
+
+
     # Extracting the 'id', 'rowVersion', and 'translationRowVersion' from the response
     valid_id = json_data["id"]
     row_version = json_data.get("rowVersion")
     translation_row_version = json_data.get("translationRowVersion")
+
+
+
 
     # Store the generated valid_id, rowVersion, and translationRowVersion in the config_data
     config_data["valid_id"] = valid_id
