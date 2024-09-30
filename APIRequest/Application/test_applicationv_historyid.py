@@ -1,14 +1,15 @@
 import requests
 import json
 
-# Define the base URL
-base_url = "https://localhost:7084"  # Replace with your actual base URL
+from APIRequest.Application.runtests import test_files
+from SSO.test_logout import test_logout
+
+base_url = "https://localhost:7084"
 
 # Read the configuration file
 with open('config.json', 'r') as file:
     config = json.load(file)
 
-# Get the "idv", "startdate", "enddate", "nonexisting_id", and "invalid_id" values from the configuration file
 idv = config['idv']
 start_date = config['startdate']
 end_date = config['enddate']
@@ -74,3 +75,4 @@ if __name__ == "__main__":
     test_get_request_valid_idv()
     test_get_request_nonexisting_id()
     test_get_request_invalid_id()
+
